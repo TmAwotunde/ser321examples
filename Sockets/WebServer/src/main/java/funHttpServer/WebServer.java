@@ -198,9 +198,43 @@ class WebServer {
           // wrong data is given this just crashes
 
           Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+          boolean validFirstInput = true;
+          boolean validSecondInput = true;
+          
           // extract path parameters
           query_pairs = splitQuery(request.replace("multiply?", ""));
+          
+          try {
+        	  Integer.parseInt(query_pairs.get("num1"));
+          } catch (NumberFormatException e) {
+        	  System.out.println("un-parsable integer :: " + "num1");
+        	  validFirstInput = false;
+        	  builder.append("HTTP/1.1 400 Bad Request\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append("Invalid parameter(s)\n");
+              builder.append(("num1") + " is not a valid integer number");
+          }
 
+          
+          try {
+        	  Integer.parseInt(query_pairs.get("num2"));
+          } catch (NumberFormatException e) {
+        	  System.out.println("un-parsable integer :: " + "num2");
+        	  validSecondInput = false;
+              builder.append("HTTP/1.1 400 Bad Request\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append("Invalid parameter(s)\n");
+              builder.append((query_pairs.get("num2") + " is not a valid integer number"));
+
+          }
+          
+          if (validFirstInput == true && validSecondInput == true) {
+        	  builder.append(("num1") + " is a valid integer number");
+
+              builder.append(("num2") + " is a valid integer number");
+        
           // extract required fields from parameters
           Integer num1 = Integer.parseInt(query_pairs.get("num1"));
           Integer num2 = Integer.parseInt(query_pairs.get("num2"));
@@ -213,6 +247,12 @@ class WebServer {
           builder.append("Content-Type: text/html; charset=utf-8\n");
           builder.append("\n");
           builder.append("Result is: " + result);
+          } else {
+        	  builder.append("HTTP/1.1 400 Bad Request\n");
+              builder.append("Content-Type: text/html; charset=utf-8\n");
+              builder.append("\n");
+              builder.append("Invalid parameter(s)\n");
+          }
 
           // TODO: Include error handling here with a correct error code and
           // a response that makes sense

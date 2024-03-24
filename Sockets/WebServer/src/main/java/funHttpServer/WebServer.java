@@ -364,8 +364,8 @@ class WebServer {
           // response based on what the assignment document asks for
 
         } */
-        else if (request.contains("bmi?")) {
-            Map<String, String> query_pairs = splitQuery(request.replace("calculate?", ""));
+        else if (request.contains("bmicalc?")) {
+            Map<String, String> query_pairs = splitQuery(request.replace("bmicalc?", ""));
             try {
                 // Extract height and weight parameters
                 double height = Double.parseDouble(query_pairs.get("height"));
@@ -386,12 +386,6 @@ class WebServer {
                 builder.append("\n");
                 builder.append("Invalid input: " + e.getMessage());
             }
-        }
-
-        // BMI calculation method
-        private double calculateBMI(double height, double weight) {
-            // BMI formula: weight (kg) / (height (m) * height (m))
-            return weight / (height * height);
         } else if (request.contains("max?")) {
             Map<String, String> query_pairs = splitQuery(request.replace("calculate?", ""));
             try {
@@ -432,6 +426,12 @@ class WebServer {
     }
 
     return response;
+  }
+  
+//BMI calculation method
+  private double calculateBMI(double height, double weight) {
+      // BMI formula: weight (kg) / (height (m) * height (m))
+      return weight / (height * height);
   }
 
   /**

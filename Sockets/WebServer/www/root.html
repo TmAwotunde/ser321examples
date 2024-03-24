@@ -3,13 +3,47 @@
 		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 	</head>
 	<body>
-		<h3>You can make the following GET requests<h3>
+		<h3>You can make the following GET requests</h3>
 		<ul>
 			<li>/file/sample.html -- returns the content of the file sample.html</li>
 			<li>/json -- returns a json of the /random request</a></li>
 			<li>/random -- returns index.html</a></li>
 		</ul>
 		<h3>File Structure in www (you can use /file/www/FILENAME):</h3>
-		${links}
+		${links} 
+		<br> <br>
+		<h3>Task 2.6: Some Programming on the WebServer</h3>
+		<p>In this task we implement code for some api Get requests as listed below in the sub-tasks.<br>
+			The api calls can be made as per instructions provided under each request.
+		</p>
+		<ul>
+			<li>Sub-task 2.6.1 Multiply: <br>
+				This Get request takes TWO integer argumemnts and returns the result of the multiplication of the arguments.<br>
+				This api request is made by adding the query to the host name and supply the required arguments as shown below.<br><br>
+				/multiply?num1=(value of the first argument)&num2=(value of the second argument). <br><br>
+				<b>For example: /multiply?num1=8&num2=5 </b>
+			</li> <br>
+			<li>Sub-task 2.6.2 GitHub: <br>
+				This Get request query GitHub repository and returns the repo name, ID and login information of the owner of the repo.<br>
+				To make this api call, follow the instruction below: <br><br>
+				hostname/github?query=users/repoName/repos <br><br>
+				<b>For example: /github?query=users/amehlhase316/repos</b>
+			</li> <br>
+			<li>Sub-task 2.6.3 Make your own requests
+				<ol>
+					<li>BMI Calculator: Calculates the BMI and returns the result<br>
+						This api Get request is made as demonstrated below.<br>
+						/bmi?weight=value of body weight in kg&height=value of height in meter).<br><br>
+						<b>For example: /bmi?weight=80.0&height=2.0</b>
+					</li> <br>
+					<li>Maximum of Two Numbers: Comapares two numbers and returns the larger number<br>
+						This api Get request is made as shown below. <br>
+						/max?num1=value of the first number&num2=value of the second number<br><br>
+						<b>For example: /num1=250&num2=80</b>
+					</li>
+
+				</ol>
+			</li>
+		</ul>
 	</body>
 </html>

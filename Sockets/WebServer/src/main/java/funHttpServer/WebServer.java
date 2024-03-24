@@ -199,79 +199,16 @@ class WebServer {
             builder.append("\n");
             builder.append("File not found: " + file);
           }
-        } /*else if (request.contains("multiply?")) {
-          // This multiplies two numbers, there is NO error handling, so when
-          // wrong data is given this just crashes
-
-          Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-          boolean validFirstInput = true;
-          boolean validSecondInput = true;
-          
-          // extract path parameters
-          query_pairs = splitQuery(request.replace("multiply?", ""));
-          
-          try {
-        	  Integer.parseInt(query_pairs.get("num1"));
-          } catch (NumberFormatException e) {
-        	  System.out.println("un-parsable integer :: " + "num1");
-        	  validFirstInput = false;
-        	  builder.append("HTTP/1.1 400 Bad Request\n");
-              builder.append("Content-Type: text/html; charset=utf-8\n");
-              builder.append("\n");
-              builder.append("Invalid parameter(s)\n");
-              builder.append(("num1") + " is not a valid integer number");
-          }
-
-          
-          try {
-        	  Integer.parseInt(query_pairs.get("num2"));
-          } catch (NumberFormatException e) {
-        	  System.out.println("un-parsable integer :: " + "num2");
-        	  validSecondInput = false;
-              builder.append("HTTP/1.1 400 Bad Request\n");
-              builder.append("Content-Type: text/html; charset=utf-8\n");
-              builder.append("\n");
-              builder.append("Invalid parameter(s)\n");
-              builder.append((query_pairs.get("num2") + " is not a valid integer number"));
-
-          }
-          
-          if (validFirstInput == true && validSecondInput == true) {
-        	  builder.append(("num1") + " is a valid integer number");
-
-              builder.append(("num2") + " is a valid integer number");
-        
-          // extract required fields from parameters
-          Integer num1 = Integer.parseInt(query_pairs.get("num1"));
-          Integer num2 = Integer.parseInt(query_pairs.get("num2"));
-
-          // do math
-          Integer result = num1 * num2;
-
-          // Generate response
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("Result is: " + result);
-          } else {
-        	  builder.append("HTTP/1.1 400 Bad Request\n");
-              builder.append("Content-Type: text/html; charset=utf-8\n");
-              builder.append("\n");
-              builder.append("Invalid parameter(s)\n");
-          }
-
-          // TODO: Include error handling here with a correct error code and
-          // a response that makes sense 
-           * 
-           */
-        else if (request.contains("multiply?")) {
+        } else if (request.contains("multiply?")) {
+        	// TODO: Include error handling here with a correct error code and
+            // a response that makes sense 
             Map<String, String> query_pairs = splitQuery(request.replace("multiply?", ""));
             try {
                 // Extract required fields from parameters
                 Integer num1 = Integer.parseInt(query_pairs.get("num1"));
                 Integer num2 = Integer.parseInt(query_pairs.get("num2"));
 
-                // Do math
+                // do math
                 Integer result = num1 * num2;
 
                 // Generate response
@@ -306,7 +243,7 @@ class WebServer {
                     JSONArray reposArray = new JSONArray(json);
                     StringBuilder responseData = new StringBuilder();
 
-                    // Loop through each repository in the JSON array
+                    // Loop through each repo in the JSON array
                     for (int i = 0; i < reposArray.length(); i++) {
                         JSONObject repo = reposArray.getJSONObject(i);
 
@@ -321,7 +258,6 @@ class WebServer {
                     }
 
                     // Generate response
-                    //StringBuilder builder = new StringBuilder();
                     builder.append("HTTP/1.1 200 OK\n");
                     builder.append("Content-Type: text/plain; charset=utf-8\n");
                     builder.append("\n");
@@ -329,7 +265,6 @@ class WebServer {
                     return builder.toString().getBytes();
                 } catch (JSONException e) {
                     // Handle JSON parsing error
-                    //StringBuilder builder = new StringBuilder();
                     builder.append("HTTP/1.1 500 Internal Server Error\n");
                     builder.append("Content-Type: text/html; charset=utf-8\n");
                     builder.append("\n");
@@ -338,53 +273,27 @@ class WebServer {
                 }
             } else {
                 // Handle empty or null JSON response
-               // StringBuilder builder = new StringBuilder();
                 builder.append("HTTP/1.1 500 Internal Server Error\n");
                 builder.append("Content-Type: text/html; charset=utf-8\n");
                 builder.append("\n");
                 builder.append("Failed to fetch data from GitHub API");
                 return builder.toString().getBytes();
             }
-        }
- 
-        
-        /*else if (request.contains("github?")) {
-          // pulls the query from the request and runs it with GitHub's REST API
-          // check out https://docs.github.com/rest/reference/
-          //
-          // HINT: REST is organized by nesting topics. Figure out the biggest one first,
-          //     then drill down to what you care about
-          // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
-          //     "/repos/OWNERNAME/REPONAME/contributors"
-
-          Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-          query_pairs = splitQuery(request.replace("github?", ""));
-          String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-          System.out.println(json);
-
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("Check the todos mentioned in the Java source file");
-          // TODO: Parse the JSON returned by your fetch and create an appropriate
-          // response based on what the assignment document asks for
-
-        } */
-        else if (request.contains("bmicalc?")) {
-            Map<String, String> query_pairs = splitQuery(request.replace("bmicalc?", ""));
+        } else if (request.contains("bmi?")) {
+            Map<String, String> query_pairs = splitQuery(request.replace("bmi?", ""));
             try {
                 // Extract height and weight parameters
                 double height = Double.parseDouble(query_pairs.get("height"));
                 double weight = Double.parseDouble(query_pairs.get("weight"));
 
                 // Calculate BMI
-                double bmi = calculateBMI(height, weight);
+                double bmiCalculator = calculateBMI(height, weight);
 
                 // Generate response
                 builder.append("HTTP/1.1 200 OK\n");
                 builder.append("Content-Type: text/html; charset=utf-8\n");
                 builder.append("\n");
-                builder.append("Your BMI is: ").append(String.format("%.2f", bmi));
+                builder.append("Your BMI is: ").append(String.format("%.2f", bmiCalculator));
             } catch (NumberFormatException | NullPointerException e) {
                 // Handle incorrect inputs
                 builder.append("HTTP/1.1 400 Bad Request\n");

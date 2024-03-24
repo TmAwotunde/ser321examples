@@ -393,7 +393,7 @@ class WebServer {
                 builder.append("Invalid input: " + e.getMessage());
             }
         } else if (request.contains("max?")) {
-            Map<String, String> query_pairs = splitQuery(request.replace("calculate?", ""));
+            Map<String, String> query_pairs = splitQuery(request.replace("max?", ""));
             try {
                 // Extract numbers
                 double num1 = Double.parseDouble(query_pairs.get("num1"));

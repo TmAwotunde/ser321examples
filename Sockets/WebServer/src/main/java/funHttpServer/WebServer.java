@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.nio.charset.Charset;
 
-import org.json.*;
+import org.json.JSONArray;
 
 class WebServer {
   public static void main(String args[]) {

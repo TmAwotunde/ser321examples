@@ -321,7 +321,7 @@ class WebServer {
                     }
 
                     // Generate response
-                    StringBuilder builder = new StringBuilder();
+                    //StringBuilder builder = new StringBuilder();
                     builder.append("HTTP/1.1 200 OK\n");
                     builder.append("Content-Type: text/plain; charset=utf-8\n");
                     builder.append("\n");
@@ -329,7 +329,7 @@ class WebServer {
                     return builder.toString().getBytes();
                 } catch (JSONException e) {
                     // Handle JSON parsing error
-                    StringBuilder builder = new StringBuilder();
+                    //StringBuilder builder = new StringBuilder();
                     builder.append("HTTP/1.1 500 Internal Server Error\n");
                     builder.append("Content-Type: text/html; charset=utf-8\n");
                     builder.append("\n");
@@ -338,7 +338,7 @@ class WebServer {
                 }
             } else {
                 // Handle empty or null JSON response
-                StringBuilder builder = new StringBuilder();
+               // StringBuilder builder = new StringBuilder();
                 builder.append("HTTP/1.1 500 Internal Server Error\n");
                 builder.append("Content-Type: text/html; charset=utf-8\n");
                 builder.append("\n");

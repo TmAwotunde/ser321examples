@@ -193,7 +193,7 @@ class WebServer {
             builder.append("\n");
             builder.append("File not found: " + file);
           }
-        } else if (request.contains("multiply?")) {
+        } /*else if (request.contains("multiply?")) {
           // This multiplies two numbers, there is NO error handling, so when
           // wrong data is given this just crashes
 
@@ -255,9 +255,94 @@ class WebServer {
           }
 
           // TODO: Include error handling here with a correct error code and
-          // a response that makes sense
+          // a response that makes sense 
+           * 
+           */
+        else if (request.contains("multiply?")) {
+            Map<String, String> query_pairs = splitQuery(request.replace("multiply?", ""));
+            try {
+                // Extract required fields from parameters
+                Integer num1 = Integer.parseInt(query_pairs.get("num1"));
+                Integer num2 = Integer.parseInt(query_pairs.get("num2"));
 
+                // Do math
+                Integer result = num1 * num2;
+
+                // Generate response
+                builder.append("HTTP/1.1 200 OK\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("Result is: " + result);
+            } catch (NumberFormatException | NullPointerException e) {
+                // Handle incorrect inputs
+                builder.append("HTTP/1.1 400 Bad Request\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("Invalid input: " + e.getMessage());
+            }
         } else if (request.contains("github?")) {
+            // Pulls the query from the request and runs it with GitHub's REST API
+            // Check out https://docs.github.com/rest/reference/
+            //
+            // HINT: REST is organized by nesting topics. Figure out the biggest one first,
+            // then drill down to what you care about
+            // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
+            // "/repos/OWNERNAME/REPONAME/contributors"
+
+            Map<String, String> query_pairs = new LinkedHashMap<>();
+            query_pairs = splitQuery(request.replace("github?", ""));
+            String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+            System.out.println(json);
+
+            // Parse the JSON returned by the fetch
+            if (json != null && !json.isEmpty()) {
+                try {
+                    JSONArray reposArray = new JSONArray(json);
+                    StringBuilder responseData = new StringBuilder();
+
+                    // Loop through each repository in the JSON array
+                    for (int i = 0; i < reposArray.length(); i++) {
+                        JSONObject repo = reposArray.getJSONObject(i);
+
+                        // Extract required data from the repository
+                        String fullName = repo.getString("full_name");
+                        int id = repo.getInt("id");
+                        JSONObject owner = repo.getJSONObject("owner");
+                        String login = owner.getString("login");
+
+                        // Construct response data
+                        responseData.append("Repo: ").append(fullName).append(", ID: ").append(id).append(", Owner: ").append(login).append("\n");
+                    }
+
+                    // Generate response
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("HTTP/1.1 200 OK\n");
+                    builder.append("Content-Type: text/plain; charset=utf-8\n");
+                    builder.append("\n");
+                    builder.append(responseData.toString());
+                    return builder.toString().getBytes();
+                } catch (JSONException e) {
+                    // Handle JSON parsing error
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("HTTP/1.1 500 Internal Server Error\n");
+                    builder.append("Content-Type: text/html; charset=utf-8\n");
+                    builder.append("\n");
+                    builder.append("Error parsing JSON response from GitHub API");
+                    return builder.toString().getBytes();
+                }
+            } else {
+                // Handle empty or null JSON response
+                StringBuilder builder = new StringBuilder();
+                builder.append("HTTP/1.1 500 Internal Server Error\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("Failed to fetch data from GitHub API");
+                return builder.toString().getBytes();
+            }
+        }
+ 
+        
+        /*else if (request.contains("github?")) {
           // pulls the query from the request and runs it with GitHub's REST API
           // check out https://docs.github.com/rest/reference/
           //
@@ -278,6 +363,57 @@ class WebServer {
           // TODO: Parse the JSON returned by your fetch and create an appropriate
           // response based on what the assignment document asks for
 
+        } */
+        else if (request.contains("bmi?")) {
+            Map<String, String> query_pairs = splitQuery(request.replace("calculate?", ""));
+            try {
+                // Extract height and weight parameters
+                double height = Double.parseDouble(query_pairs.get("height"));
+                double weight = Double.parseDouble(query_pairs.get("weight"));
+
+                // Calculate BMI
+                double bmi = calculateBMI(height, weight);
+
+                // Generate response
+                builder.append("HTTP/1.1 200 OK\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("Your BMI is: ").append(String.format("%.2f", bmi));
+            } catch (NumberFormatException | NullPointerException e) {
+                // Handle incorrect inputs
+                builder.append("HTTP/1.1 400 Bad Request\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("Invalid input: " + e.getMessage());
+            }
+        }
+
+        // BMI calculation method
+        private double calculateBMI(double height, double weight) {
+            // BMI formula: weight (kg) / (height (m) * height (m))
+            return weight / (height * height);
+        } else if (request.contains("max?")) {
+            Map<String, String> query_pairs = splitQuery(request.replace("calculate?", ""));
+            try {
+                // Extract numbers
+                double num1 = Double.parseDouble(query_pairs.get("num1"));
+                double num2 = Double.parseDouble(query_pairs.get("num2"));
+
+                // Find the greater number
+                double result = Math.max(num1, num2);
+
+                // Generate response
+                builder.append("HTTP/1.1 200 OK\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("The greater number is: ").append(result);
+            } catch (NumberFormatException | NullPointerException e) {
+                // Handle incorrect inputs
+                builder.append("HTTP/1.1 400 Bad Request\n");
+                builder.append("Content-Type: text/html; charset=utf-8\n");
+                builder.append("\n");
+                builder.append("Invalid input: " + e.getMessage());
+            }
         } else {
           // if the request is not recognized at all
 

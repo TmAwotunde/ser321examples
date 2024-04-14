@@ -1,8 +1,4 @@
 package client;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * Class: Player 
  * Description: Class that represents a Player, I only used it in my Client 
@@ -14,29 +10,33 @@ public class Player implements Comparable<Player> {
 
     private int wins;
     private String name;
-    private int login = 0; //number of times login
+    private int logins;
 
     // constructor, getters, setters
-    public Player(String name, int wins){
+    public Player(String name, int wins, int logins){
       this.wins = wins;
       this.name = name;
-    }
-    public Player(String name, int wins, int login){
-        this.wins = wins;
-        this.name = name;
-        this.login = login;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getLogin() {
-        return login;
+      this.logins = logins;
     }
 
     public int getWins(){
       return wins;
+    }
+
+    public int getLogins(){
+        return logins;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
+
+    public void setLogins(int logins) {
+        this.logins = logins;
     }
 
     // override equals and hashCode

@@ -27,8 +27,8 @@ protobuf {
     }
   }
 }
- def host = 'localhost'
- def port = 8080
+ def host = '54.177.42.58'
+ def port = 9099
 
 // task reading in the arguments if any given, if not the default from above will be used
 task arguments {
@@ -40,7 +40,7 @@ task arguments {
     }
 }
 
-//gradle runClient -Pport=9099 -Phost='localhost' -Pfile='data.json'
+//gradle runClient -Pport=9099 -Phost='localhost'
 task runClient(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
   description = "Run Client"

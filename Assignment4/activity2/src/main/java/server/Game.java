@@ -1,297 +1,118 @@
 package server;
 
-import java.util.*;
+import java.util.*; 
 import java.io.*;
 
 /**
- * Class: Game
- * Description: Game class that can load an ascii image
+ * Class: Game 
+ * Description: Game class that can load a phrase
  * Class can be used to hold the persistent state for a game for different threads
  * synchronization is not taken care of .
  * You can change this Class in any way you like or decide to not use it at all
- * I used this class in my SockBaseServer to create a new game and keep track of the current image evenon differnt threads.
+ * I used this class in my SockBaseServer to create a new game and keep track of the current image evenon differnt threads. 
  * My threads each get a reference to this Game
  */
 
 public class Game {
-    private char[][] original; // the original image
-    private char[][] hidden; // the hidden image
-    private int col; // columns in original, approx
-    private int row; // rows in original and hidden
-    private boolean won; // if the game is won or not
-    private int numberWon; //number of times user has won
-    private List<String> files = new ArrayList<String>(); // list of files, each file has one image
-//    private HashMap<String,Integer> leaderboard = new HashMap<String,Integer>();
-//
-//    private ArrayList<leaderboard>
+    private int length; // length of phrase
+    private char[] originalPhrase; // the original phrase
+    private char[] hiddenPhrase; // the hidden phrase
+    private List<String> phrases = Collections.synchronizedList(new ArrayList<>()); // list of phrases
+    private String currentTask;
 
-    public Game() {
-        // you can of course add more or change this setup completely. You are totally free to also use just Strings in your Server class instead of this class
-        won = true; // setting it to true, since then in newGame() a new image will be created
-        files.add("board1.txt");
-        files.add("board2.txt");
-        files.add("board3.txt");
-        files.add("board4.txt");
-        files.add("board5.txt");
-        files.add("board6.txt");
+
+    public Game(){
+        currentTask = "";
+        length = 0;
+        loadPhrases("phrases.txt");
     }
 
     /**
-     * Sets the won flag to true
-     *
-     * @param args Unused.
+     * Method loads in a new phrase from the specified file and creates the hidden phrase for it.
      * @return Nothing.
      */
-    public void setWon() {
-        won = true;
+    public synchronized void newGame(){
+        currentTask = "Guess a letter";
+        getRandomPhrase();
     }
 
-    public boolean getWon() {
-        return won;
-    }
-
-    /**
-     *
-     * @return the max column of the board
-     */
-    public int getCol() {
-        return col;
-    }
-
-    /**
-     *
-     * @return get the max row
-     */
-    public int getRow() {
-        return row;
-    }
-
-    public char[][] getOriginal() {
-        return original;
-    }
-
-    public char[][] getHidden() {
-        return hidden;
-    }
-
-    /**
-     * Method loads in a new image from the specified files and creates the hidden image for it.
-     *
-     * @return Nothing.
-     */
-    public void newGame() {
-        if (won) {
-            won = false;
-            List<String> rows = new ArrayList<String>();
-
-            try {
-                // loads one random image from list
-                Random rand = new Random();
-                col = 0;
-                int randInt = rand.nextInt(files.size());
-                File file = new File(
-                        Game.class.getResource("/" + files.get(randInt)).getFile()
-                );
+    public void loadPhrases(String filename){
+        synchronized (this) {
+            try{
+                File file = new File( Game.class.getResource("/"+filename).getFile() );
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
                 while ((line = br.readLine()) != null) {
-                    if (col < line.length()) {
-                        col = line.length();
+                    phrases.add(line);
+                    System.out.println("Added Phrase: " + line);
+                }
+            }
+            catch (Exception e){
+                System.out.println(e);
+                System.out.println("File load error"); // extremely simple error handling, you can do better if you like.
+            }
+        }
+    }
+
+    // Simple method to load a random phrase, but might load the same phrase twice
+    private  void getRandomPhrase(){
+        synchronized (this) {
+            String phrase = "";
+            try{
+                // loads one random phrase from list
+                Random rand = new Random();
+                int randInt = rand.nextInt(phrases.size());
+
+                phrase = phrases.get(randInt);
+                length = phrase.length();
+
+                System.out.println("Starting new game with phrase: " + phrase);
+
+                originalPhrase = new char[length];
+                hiddenPhrase = new char[length];
+
+                for (int i = 0; i < length; i++) {
+                    char curr = phrase.charAt(i);
+                    originalPhrase[i] = curr;
+                    if (curr == ' ') {
+                        hiddenPhrase[i] = curr;
+                    } else {
+                        hiddenPhrase[i] = '_';
                     }
-                    rows.add(line);
-                }
-            } catch (Exception e) {
-                System.out.println("File load error"); // extremely simple error handling, you can do better if you like. 
-            }
-
-            // this handles creating the orinal array and the hidden array in the correct size
-            String[] rowsASCII = rows.toArray(new String[0]);
-
-            row = rowsASCII.length;
-
-            // Generate original array by splitting each row in the original array.
-            original = new char[row][col];
-            for (int i = 0; i < row; i++) {
-                char[] splitRow = rowsASCII[i].toCharArray();
-                for (int j = 0; j < splitRow.length; j++) {
-                    original[i][j] = splitRow[j];
                 }
             }
-
-            // Generate Hidden array with X's (this is the minimal size for columns)
-            hidden = new char[row][col];
-            for (int i = 0; i < row; i++) {
-                for (int j = 0; j < col; j++) {
-                    if (i == 0 || j < 2)
-                        hidden[i][j] = original[i][j];
-                    else if (original[i][j] != '|')
-                        hidden[i][j] = '?';
-                    else
-                        hidden[i][j] = '|';
-                }
-            }
-        } else {
-        //if loss
-        }
-    }
-
-    /**
-     * Method returns original board as String
-     *
-     * @return String of original board
-     */
-    public String showOriginalBoard() {
-        StringBuilder sb = new StringBuilder();
-        for (char[] subArray : original) {
-            sb.append(subArray);
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Method returns the String of the current hidden image
-     *
-     * @return String of the current hidden board
-     */
-    public String getHiddenBoard() {
-        StringBuilder sb = new StringBuilder();
-        for (char[] subArray : hidden) {
-            sb.append(subArray);
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Shows the two chosen tiles and then hides them again. Returns the board with one showing.
-     *
-     * @param tile1row
-     * @param tile1col
-     * @return String of board with the 1 tile showing
-     */
-    public String tempFlipWrongTiles(int tile1row, int tile1col) {
-        hidden[tile1row][tile1col] = original[tile1row][tile1col];
-        StringBuilder sb = new StringBuilder();
-        for (char[] subArray : hidden) {
-            sb.append(subArray);
-            sb.append("\n");
-        }
-        hidden[tile1row][tile1col] = '?';
-        return sb.toString();
-    }
-
-    /**
-     * Shows the two chosen tiles and then hides them again. Returns the board with them showing.
-     *
-     * @param tile1row
-     * @param tile1col
-     * @param tile2row
-     * @param tile2col
-     * @return String of board with the 2 tile showing
-     */
-    public String tempFlipWrongTiles(int tile1row, int tile1col, int tile2row, int tile2col) {
-        hidden[tile1row][tile1col] = original[tile1row][tile1col];
-        hidden[tile2row][tile2col] = original[tile2row][tile2col];
-        StringBuilder sb = new StringBuilder();
-        for (char[] subArray : hidden) {
-            sb.append(subArray);
-            sb.append("\n");
-        }
-        hidden[tile1row][tile1col] = '?';
-        hidden[tile2row][tile2col] = '?';
-        return sb.toString();
-    }
-
-    /**
-     * @param row
-     * @param col
-     * @return character at selected row and column
-     */
-    public synchronized char getTile(int row, int col) {
-        if (row < original.length && col < original[0].length)
-            return original[row][col];
-        else
-            return '?';
-    }
-
-    /**
-     * @param row
-     * @param col
-     * @return character at selected row and column
-     */
-    public synchronized char getHiddenTile(int row, int col) {
-        if (row < original.length && col < original[0].length)
-            return hidden[row][col];
-        else
-            return '?';
-    }
-
-
-    public synchronized boolean matchFound(int hiddenRow, int hiddenCol,int originRow, int originCol) {
-        char hidTile = getTile(hiddenRow,hiddenCol);
-        char originTile = getTile(originRow,originCol);
-        if(hidTile == originTile){
-            hidden[hiddenRow][hiddenCol] = original[originRow][originCol];
-            return true;
-        }else{
-//            tempFlipWrongTiles(hiddenRow,hiddenCol,originRow,originCol);
-            return false;
-        }
-    }
-
-    /**
-     * Method that replaces a character, needed when a match was found, would need to be called twice
-     * You can of course also change it to get two rows and two cols if you like
-     *
-     * @return String of the current hidden board
-     */
-    public synchronized String replaceOneCharacter(int rowNumber, int colNumber) {
-
-        hidden[rowNumber][colNumber] = original[rowNumber][colNumber];
-        return (getHiddenBoard());
-    }
-    /**
-     * Method that replaces a character, needed when a match was found, would need to be called twice
-     * You can of course also change it to get two rows and two cols if you like
-     *
-     * @return String of the current hidden board
-     */
-    public synchronized String replaceTwoCharacter(int rowNumber, int colNumber, int rowNumber1, int colNumber1) {
-        hidden[rowNumber][colNumber] = original[rowNumber][colNumber];
-        hidden[rowNumber1][colNumber1] = original[rowNumber1][colNumber1];
-        return (getHiddenBoard());
-    }
-
-    public void checkWin() {
-        boolean equal = true;
-        for (int r = 0; r < row; r++) {
-            for (int c = 0; c < col; c++) {
-                if (hidden[r][c] != original[r][c]) {
-                    equal = false;
-                }
+            catch (Exception e){
+                System.out.println("Error generating random phrase"); // extremely simple error handling, you can do better if you like.
+                System.exit(0);
             }
         }
-        if (equal) {
-            setWon();
-        }
+
     }
-    public boolean checkWinCondition() {
-        boolean equal = true;
-        for (int r = 0; r < row; r++) {
-            for (int c = 0; c < col; c++) {
-                if (hidden[r][c] != original[r][c]) {
-                    equal = false;
-                    return false;
-                }else {
-                    setWon();
-                    return true;
-                }
+
+    public synchronized boolean markGuess(char guess) {
+        boolean win = true;
+        for (int i = 0; i < length; i++) {
+            if (originalPhrase[i] == guess) {
+                hiddenPhrase[i] = guess;
             }
         }
-        return false;
-//        if (equal) {
-//            setWon();
-//        }
+        for (char each: hiddenPhrase) {
+            if (each == '_'){
+                win = false;
+                break;
+            }
+        }
+        return win;
     }
+
+    public String getPhrase(){
+        synchronized (this) {
+            return String.valueOf(hiddenPhrase);
+        }
+    }
+
+    public synchronized String getTask(){
+        return currentTask;
+    }
+
 }

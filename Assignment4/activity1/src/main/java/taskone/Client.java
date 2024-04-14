@@ -1,146 +1,93 @@
 /**
- * File: Client.java
- * Author: Student in Fall 2020B
- * Description: Client class in package taskone.
- */
+  File: Client.java
+  Author: Student in Fall 2020B
+  Description: Client class in package taskone.
+*/
 
 package taskone;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Base64;
-import java.util.InputMismatchException;
 import java.util.Scanner;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.json.JSONObject;
 
 /**
  * Class: Client
  * Description: Client tasks.
- * This is just a simple client which might not do exactly what the requirements
- * of the assignments say. It is your task to make it work!
+ * Basic methods are given but you can change them and make adjustements as you see fit.
  */
 public class Client {
     private static BufferedReader stdin;
 
+    // The functions to build the requests do not have to include more error handling, you can assume
+    // we will input the correct data
     /**
-     * Function JSONObject add().
+     * Function JSONObject for add() request.
      */
     public static JSONObject add() {
         String strToSend = null;
         JSONObject request = new JSONObject();
         request.put("selected", 1);
         try {
-            System.out.print("Please input the string you want to add: ");
-            strToSend = stdin.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        request.put("data", strToSend);
-        return request;
-    }
-
-    /**
-     * Function JSONObject clear().
-     */
-    public static JSONObject clear() {
-        JSONObject request = new JSONObject();
-        request.put("selected", 2);
-        request.put("data", "clear");
-        return request;
-    }
-
-    /**
-     * Function JSONObject find().
-     */
-    public static JSONObject find() {
-        String strToSend = null;
-        JSONObject request = new JSONObject();
-        request.put("selected", 3);
-        try {
             System.out.print("Please input the string: ");
             strToSend = stdin.readLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        request.put("data", strToSend);
+        JSONObject data = new JSONObject();
+        data.put("string", strToSend);
+        request.put("data", data);
         return request;
     }
 
+
     /**
-     * Function JSONObject display().
+     * Function JSONObject for display() request.
      */
     public static JSONObject display() {
         JSONObject request = new JSONObject();
+        request.put("selected", 2);
+        return request;
+    }
+
+    /**
+     * Function JSONObject for sort request.
+     */
+    public static JSONObject sort() {
+        JSONObject request = new JSONObject();
+        request.put("selected", 3);
+        return request;
+    }
+
+    /**
+     * Function JSONObject for switch request
+     */
+    public static JSONObject switchStrings() {
+        JSONObject request = new JSONObject();
         request.put("selected", 4);
-        return request;
-    }
+        int indexInput1 = 0;
+        int indexInput2 = 0;
+        try {
+            System.out.print("Please input the first index: ");
+            indexInput1 = Integer.parseInt(stdin.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JSONObject data = new JSONObject();
+        data.put("index1", indexInput1);
 
-    /**
-     * Function JSONObject delete().
-     */
-    public static JSONObject delete() {
-        JSONObject request = new JSONObject();
-        request.put("selected", 5);
-        int index;
-        while (true) {
-            System.out.print("Please input the index: ");
-            try {
-                index = Integer.parseInt(stdin.readLine());
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NumberFormatException ne) {
-                System.out.println("Input is not a number, continue");
-            }
+        try {
+            System.out.print("Please input the second index: ");
+            indexInput2 = Integer.parseInt(stdin.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        request.put("IndexDeletion", index);
-        return request;
-    }
-
-    /**
-     * Function JSONObject prepend().
-     */
-    public static JSONObject prepend() {
-        String strToSend;
-        int index;
-        JSONObject request = new JSONObject();
-        request.put("selected", 6);
-        while (true) {
-            System.out.print("Please input the index: ");
-            try {
-                index = Integer.parseInt(stdin.readLine());
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NumberFormatException ne) {
-                System.out.println("Input is not a number, continue");
-            }
-        }
-        while (true) {
-            System.out.print("Please input the string: ");
-            try {
-                strToSend = stdin.readLine();
-                if (strToSend.equals("")) {
-                    System.out.println("String is empty, continue");
-                } else break;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        request.put("data",strToSend);
-        request.put("index", index);
+        data.put("index2", indexInput2);
+        request.put("data", data);
         return request;
     }
 
@@ -157,6 +104,9 @@ public class Client {
      * Function main().
      */
     public static void main(String[] args) throws IOException {
+
+        args = new String[]{"localhost", "9099"};
+
         String host;
         int port;
         Socket sock;
@@ -184,146 +134,58 @@ public class Client {
             int choice;
             do {
                 System.out.println();
+                // TODO: you will need to change the menu based on the tasks for this assignment, see Readme!
                 System.out.println("Client Menu");
-                System.out.println("Please select a valid option (1-6). 0 to disconnect the client");
-                System.out.println("1. add <string> - adds a string to the list and display it");
-                System.out.println("2. clear <> - clears the whole list");
-                System.out.println("3. find <string> - display idx of string if found, else -1");
-                System.out.println("4. display <> - display the list");
-                System.out.println("5. delete <int> - delete item at given index");
-                System.out.println("6. prepend <int> <string> - prepends given string to string at idx");
+                System.out.println("Please select a valid option (1-4). 0 to disconnect the client");
+                System.out.println("1. add: Adds the given String to the end of the list");
+                System.out.println("2. display: Displays the current list");
+                System.out.println("3. sort: Sorts the elements in the list");
+                System.out.println("4. switch: Switches the two Strings at the given index");
                 System.out.println("0. quit");
                 System.out.println();
-                while (true) {
-                    try {
-                        choice = input.nextInt();
-                        break;
-                    }catch (InputMismatchException e){
-
-                        System.out.println("Is not an integer");
-                        System.out.println("Try again");
-                        System.out.println();
-                        System.out.println("Client Menu");
-                        System.out.println("Please select a valid option (1-6). 0 to disconnect the client");
-                        System.out.println("1. add <string> - adds a string to the list and display it");
-                        System.out.println("2. clear <> - clears the whole list");
-                        System.out.println("3. find <string> - display idx of string if found, else -1");
-                        System.out.println("4. display <> - display the list");
-                        System.out.println("5. delete <int> - delete item at given index");
-                        System.out.println("6. prepend <int> <string> - prepends given string to string at idx");
-                        System.out.println("0. quit");
-                        System.out.println();
-                    }
-                    input.next();
-                }
+                choice = input.nextInt(); // do not have to error handle in case no int is given, we will input the correct thing
                 JSONObject request = null;
                 switch (choice) {
                     case (1):
                         request = add();
                         break;
                     case (2):
-                        request = clear();
-                        break;
-                    case (3):
-                        request = find();
-                        break;
-                    case (4):
                         request = display();
                         break;
-                    case (5):
-                        request = delete();
+                    case (3):
+                        request = sort();
                         break;
-                    case (6):
-                        request = prepend();
+                    case (4):
+                        request = switchStrings();
                         break;
                     case (0):
                         request = quit();
                         break;
                     default:
-                        System.out.println("Please select a valid option (0-6).");
+                        System.out.println("Please select a valid option (0-4).");
                         break;
                 }
+
                 if (request != null) {
                     System.out.println(request);
                     NetworkUtils.send(out, JsonUtils.toByteArray(request));
                     byte[] responseBytes = NetworkUtils.receive(in);
                     JSONObject response = JsonUtils.fromByteArray(responseBytes);
 
-                    if (response.has("error")) {
-                        System.out.println(response.getString("error"));
+                    if (!response.getBoolean("ok")) {
+                        System.out.println(response.getJSONObject("data"));
                     } else {
                         System.out.println();
                         System.out.println("The response from the server: ");
-                        if (response.getBoolean("ok")) {
-
-                            String choice2 = response.getString("type");
-                            switch (choice2) {
-                                case ("add"), ("clear"):
-                                    System.out.println("type: " + response.getString("type"));
-                                    System.out.println("data: " + response.getString("data"));
-                                    break;
-                                case ("find"):
-                                    if(response.getInt("index") == -1){
-                                        System.out.println("type: " + response.getString("type"));
-                                        System.out.println("data: " + response.getString("data"));
-                                        System.out.println("Does not contain " + response.getString("data"));
-                                        System.out.println("Error value " + response.getInt("index"));
-                                        break;
-                                    }else{
-                                        System.out.println("type: " + response.getString("type"));
-                                        System.out.println("data: " + response.getString("data"));
-                                        System.out.println("Message " + response.getString("data") + " is " + response.getInt("index"));
-                                        break;
-                                    }
-                                case ("display"):
-                                    System.out.println("type: " + response.getString("type"));
-                                    System.out.println("List is: " + response.getString("data"));
-                                    break;
-                                case ("delete"):
-                                    if(response.getInt("flag")==0){
-                                        System.out.println("type: " + response.getString("type"));
-                                        System.out.println("Is " + response.getString("data") + " at "+ response.getInt("index"));
-                                    }else if(response.getInt("flag")==2){
-                                        System.out.println("type: " + response.getString("type"));
-                                        System.out.println("There is " + response.getString("data"));
-                                    }
-                                    else{
-                                        System.out.println("type: " + response.getString("type"));
-                                        System.out.println("deleted " + response.getString("data") + " at "+ response.getInt("index"));
-                                    }
-                                    break;
-                                case ("prepend"):
-                                    if(!response.getBoolean("flag")){
-                                        System.out.println("Index of " + response.getInt("index") + " is not with in bounds");
-                                    }else{
-                                        System.out.println("type: " + response.getString("type"));
-                                        System.out.println("Prepended list " + response.getString("data"));
-                                    }
-
-                                    break;
-                                case ("quit"):
-                                    sock.close();
-                                    out.close();
-                                    in.close();
-                                    System.exit(0);
-                                    break;
-                                default:
-                                    System.out.println("Does not contain type or no valid types.");
-                                    break;
-                            }
-
-//                            System.out.println("type: " + response.getString("type"));
-//                            System.out.println("data: " + response.getString("data"));
-                            if (response.getString("data").equals("quit")) {
-                                sock.close();
-                                out.close();
-                                in.close();
-                                System.exit(0);
-                            }
-                        } else {
-                            System.out.println("type: " + response.getString("message"));
+                        System.out.println("type: " + response.getInt("type"));
+                        System.out.println("data: " + response.getString("data"));
+                        int type = response.getInt("type");
+                        if (type == 0) {
+                            sock.close();
+                            out.close();
+                            in.close();
+                            System.exit(0);
                         }
-
                     }
                 }
             } while (true);
